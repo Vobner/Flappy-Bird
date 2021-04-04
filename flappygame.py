@@ -22,13 +22,14 @@ class Flappy:
             self.movement_last = time + self.movement_delay
 
             
-            if self.space_pressed == 1 and not self.bird_rect[1] == 0:
-                if not self.bird_rect[1] == 436: 
+            if self.space_pressed == 1:
+                self.space_pressed = 0
+                if not self.bird_rect[1] < 0: 
                     self.bird_rect = self.bird_rect.move(self.space_movement)
-                    self.space_pressed = 0
+                    
 
             else:
-                if not self.bird_rect[1] == 436:
+                if not self.bird_rect[1] > 436:
                     self.bird_rect = self.bird_rect.move(self.natural_movement)
 
     def check_ifcollide(self, pipe_rect):
