@@ -57,33 +57,77 @@ class Pipe:
            self.pipe_high_rect.move(810, self.deviation)
            self.pipe_low_rect.move(810, 297 + self.deviation + 100)
 
-    def move_pipe():
+    def move_pipe(self):
         self.pipe_high_rect.move(self.movement)
         self.pipe_low_rect.move(self.movement)
 
-    def pipe_low_blitz():
+    def pipe_low_blitz(self):
         return self.pipe_low, self.pipe_low_rect
 
-    def pipe_low_blitz():
+    def pipe_low_blitz(self):
         return self.pipe_high, self.pipe_high_rect    
 
 class Backround:
 
     def __init__(self, backround = "backround.png"):
         
-        self.backround = pygame.image.load(backround)
-        self.backround_rect = self.backround.get_rect()
+        self.picture = pygame.image.load(backround)
+        self.rect = self.picture.get_rect()
         self.movement = [-1,0]
 
-    def move():
-        
-        self.backround_rect.move(self.movement)
-        
-
-
-
-        
+    def move_backround(self):
+        self.rect = self.rect.move(self.movement)
     
+    def get_inline(self):
+        self.rect = self.rect.move(900,0)
+
+
+def main():
+
+    pygame.init()
+    screen_size = width, height = 900, 504
+    screen = pygame.display.set_mode(screen_size)
+    pygame.display.set_caption("Flappy Bird")
+    pygame.display.set_icon(pygame.image.load("bird.png"))
+    pygame.display.set_icon(pygame.image.load("bird.png"))
+    running = True
+    flappy_bird = Flappy()
+    backround = Backround()
+    pipe = Pipe()
+    backround_list = [backround]
+    pipe_list = [pipe]
+    number_backround = 0
+
+    while running:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: 
+                sys.exit()
+        
+        if backround_list[0].rect[0] == -900:
+            backround_list.pop(0)
+
+        if backround_list[0].rect[0] == 0:
+            if backround_list[0] == backround:
+                backround_1 = Backround()
+                backround_1.get_inline()
+                backround_list.append(backround_1)
+            else:
+                backround = Backround()
+                backround.get_inline()
+                backround_list.append(backround)
+
+        
+        for i in backround_list:
+            i.move_backround()
+            screen.blit(i.picture, i.rect)
+            
+
+        pygame.time.Clock().tick(50)
+        pygame.display.flip()
+        
+
+main()  
 
 
 
