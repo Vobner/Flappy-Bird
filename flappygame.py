@@ -6,66 +6,54 @@ class Flappy:
         
         self.bird_picture = pygame.image.load(picture)
         self.bird_rect = self.bird_picture.get_rect().move(300, 230)
-        self.natural_movement = [0,-3]
-        self.space_movement = [0,4]
-        self.movement_delay = 20
+        self.natural_movement = [0,4]
+        self.space_movement = [0,-9]
+        self.movement_delay = 1000
         self.movement_last = 0
         self.space_pressed = 0
 
-        def move(time):
+    def moveit(self, time):
             
-            if pygame.key.get_pressed()[K_SPACE]:
-                self.space_pressed = 1
+        if pygame.key.get_pressed()[pygame.K_SPACE]:
+            self.space_pressed = 1
 
-            if self.movement_last < (time + self.movement_delay):
+        if self.movement_last < (time + self.movement_delay):
 
-                self.movement_last = time + self.movement_delay
+            self.movement_last = time + self.movement_delay
 
-                if self.space_pressed == 1:
-                    
-                    self.bird_rect.move(self.space_movement)
+            
+            if self.space_pressed == 1 and not self.bird_rect[1] == 0:
+                if not self.bird_rect[1] == 436: 
+                    self.bird_rect = self.bird_rect.move(self.space_movement)
                     self.space_pressed = 0
 
-                else: 
-                    
-                    self.bird_rect.move(self.natural_movement)
+            else:
+                if not self.bird_rect[1] == 436:
+                    self.bird_rect = self.bird_rect.move(self.natural_movement)
 
-        def check_ifcollide(pipe_rect):
+    def check_ifcollide(self, pipe_rect):
 
-            if pygame.colliderect(self.bird_rect, pipe_rect):
-                sys.exit()
-
-
-        def bird_blitz():
-            return self.bird_picture, self.bird_rect        
+        if pygame.Rect.colliderect(self.bird_rect, pipe_rect):
+            sys.exit()        
 
 class Pipe:
 
     def __init__(self, pipe_low = "pipe_low.png", pipe_high = "pipe_high.png"):
 
-        self.deviation = random.randint(0, 182)
+        self.deviation = random.randint(0, 232)
         self.pipe_low = pygame.image.load(pipe_low)
         self.pipe_low_rect = self.pipe_low.get_rect()
         self.pipe_high = pygame.image.load(pipe_high)
         self.pipe_high_rect = self.pipe_high.get_rect()
         self.movement = [-1,0]
         self.middle_space = 100
-        if self.deviation >= 91:
-           self.pipe_high_rect.move(810, -self.deviation)
-           self.pipe_low_rect.move(810, 297 - self.deviation + 100)
-        if self.deviation <= 91:
-           self.pipe_high_rect.move(810, self.deviation)
-           self.pipe_low_rect.move(810, 297 + self.deviation + 100)
+        self.pipe_high_rect = self.pipe_high_rect.move(950, -self.deviation)
+        self.pipe_low_rect = self.pipe_low_rect.move(950, 297 - self.deviation + 150)
 
     def move_pipe(self):
-        self.pipe_high_rect.move(self.movement)
-        self.pipe_low_rect.move(self.movement)
+        self.pipe_high_rect = self.pipe_high_rect.move(self.movement)
+        self.pipe_low_rect = self.pipe_low_rect.move(self.movement)
 
-    def pipe_low_blitz(self):
-        return self.pipe_low, self.pipe_low_rect
-
-    def pipe_low_blitz(self):
-        return self.pipe_high, self.pipe_high_rect    
 
 class Backround:
 
@@ -85,7 +73,7 @@ class Backround:
 def main():
 
     pygame.init()
-    screen_size = width, height = 900, 504
+    screen_size = width, height = 900, 500
     screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption("Flappy Bird")
     pygame.display.set_icon(pygame.image.load("bird.png"))
@@ -93,12 +81,12 @@ def main():
     running = True
     flappy_bird = Flappy()
     backround = Backround()
-    pipe = Pipe()
     backround_list = [backround]
-    pipe_list = [pipe]
+    pipe_list = [Pipe()]
     number_backround = 0
 
     while running:
+        time = pygame.time.get_ticks()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
@@ -108,21 +96,33 @@ def main():
             backround_list.pop(0)
 
         if backround_list[0].rect[0] == 0:
-            if backround_list[0] == backround:
-                backround_1 = Backround()
-                backround_1.get_inline()
-                backround_list.append(backround_1)
-            else:
-                backround = Backround()
-                backround.get_inline()
-                backround_list.append(backround)
-
+                backround_list.append(Backround())
+                backround_list[-1].get_inline()
         
+        if pipe_list[0].pipe_high_rect[0] < -90:
+            pipe_list.pop(0)
+
+        if pipe_list[-1].pipe_high_rect[0] < 700:
+            pipe_list.append(Pipe())
+
+        flappy_bird.moveit(time)
+        
+        for i in pipe_list:
+            flappy_bird.check_ifcollide(i.pipe_high_rect)
+            flappy_bird.check_ifcollide(i.pipe_low_rect)
+            
         for i in backround_list:
             i.move_backround()
             screen.blit(i.picture, i.rect)
-            
 
+        for i in pipe_list:
+            i.move_pipe()
+            screen.blit(i.pipe_low, i.pipe_low_rect)
+            screen.blit(i.pipe_high, i.pipe_high_rect)
+        
+        screen.blit(flappy_bird.bird_picture, flappy_bird.bird_rect)
+
+        
         pygame.time.Clock().tick(50)
         pygame.display.flip()
         
