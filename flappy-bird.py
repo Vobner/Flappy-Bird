@@ -85,8 +85,7 @@ def main():
     pygame.display.set_icon(pygame.image.load("bird.png"))
     running = True
     flappy_bird = Flappy()
-    backround = Backround()
-    backround_list = [backround]
+    backround_list = [Backround()]
     pipe_list = [Pipe()]
 
     while running:
